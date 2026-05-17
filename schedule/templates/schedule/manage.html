@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Dashboard Quản Lý Lịch Học</title>
+    <style>
+        body { background-color: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .sidebar { background: #1a1d20; min-height: 100vh; color: white; padding: 25px; position: fixed; width: 260px; z-index: 1000; transition: 0.3s; }
+        .main-content { margin-left: 270px; padding: 40px; }
+        
+        /* Card Style */
+        .card-custom { border: none; border-radius: 20px; box-shadow: 0 5px 25px rgba(0,0,0,0.05); background: white; transition: 0.3s; }
+        .card-custom:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        
+        /* Navigation */
+        .nav-link { color: #8e949a; padding: 12px 18px; margin-bottom: 10px; border-radius: 12px; transition: 0.3s; font-weight: 500; }
+        .nav-link:hover { color: #fff; background: rgba(255,255,255,0.08); }
+        .nav-link.active { background: #0dcaf0; color: white !important; box-shadow: 0 4px 15px rgba(13, 202, 240, 0.3); }
+        .nav-link i { margin-right: 12px; width: 20px; text-align: center; }
+        
+        /* Table and Badges */
+        .table thead { background-color: #f8f9fa; }
+        .table thead th { border: none; color: #8e949a; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; padding: 15px; }
+        .badge { border-radius: 8px; font-weight: 600; font-size: 0.75rem; }
+
+        /* Hover Zoom cho nút bấm */
+        .hover-zoom:hover { transform: scale(1.05); transition: 0.2s; }
+    </style>
+</head>
+<body>
+    <div class="sidebar shadow-lg">
+        <h3 class="text-info fw-bold mb-5 px-2"><i class="fas fa-graduation-cap"></i> STUDY HUB</h3>
+        <nav class="nav flex-column">
+            <a class="nav-link" href="{% url 'home' %}"><i class="fas fa-home"></i> Xem trang chủ</a>
+            <a class="nav-link active" href="{% url 'manage' %}"><i class="fas fa-calendar-alt"></i> Quản lý lịch học</a>
+            
+            {% if user.is_staff %}
+            <a class="nav-link text-warning" href="/admin/" target="_blank"><i class="fas fa-user-shield"></i> Hệ thống Admin</a>
+            {% endif %}
+            
+            <div style="margin-top: 100px;">
+                <hr class="text-secondary opacity-25">
+                <a class="nav-link text-danger" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+            </div>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h2 class="fw-bold text-dark">Chào, <span class="text-primary">{{ request.user.username }}</span>! 👋</h2>
+                <p class="text-muted">Hôm nay là một ngày tuyệt vời để học tập.</p>
+            </div>
+            <a href="{% url 'auto_suggest' %}" class="btn btn-info text-white fw-bold px-4 py-2 shadow rounded-pill hover-zoom">
+                <i class="fas fa-magic"></i> Gợi ý lịch tối ưu
+            </a>
+        </div>
+
+        <div class="card card-custom p-4 mb-5">
+            <h5 class="text-dark fw-bold mb-4 border-start border-primary border-4 ps-3">➕ Thêm môn học mới</h5>
+            
+            <form method="POST" class="row g-3 align-items-end">
+                {% csrf_token %}
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-muted text-uppercase">Tên môn học</label>
+                    {{ form.ten_mon }}
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted text-uppercase">Mức độ</label>
+                    {{ form.do_kho }}
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted text-uppercase">Số giờ học</label>
+                    {{ form.thoi_luong }}
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted text-uppercase">Ngày học</label>
+                    {{ form.ngay_hoc }}
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted text-uppercase">Địa điểm</label>
+                    {{ form.phong_hoc }}
+                </div>
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-primary w-100 shadow-sm fw-bold" style="height: 46px; border-radius: 10px;">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card card-custom p-4">
+            <h5 class="text-dark fw-bold mb-4 border-start border-success border-4 ps-3">Danh sách lịch của tôi</h5>
+            <div class="table-responsive">
+                <table class="table align-middle table-hover">
+                    <thead>
+                        <tr>
+                            <th>MÔN HỌC</th>
+                            <th>ĐỘ KHÓ</th>
+                            <th>THỜI GIAN (GỢI Ý)</th>
+                            <th>ĐỊA ĐIỂM</th>
+                            <th class="text-center">THAO TÁC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in lich %}
+                        <tr>
+                            <td>
+                                <div class="fw-bold text-dark">{{ item.ten_mon }}</div>
+                                <small class="text-muted">Mã môn: #{{ item.id }}</small>
+                            </td>
+                            <td>
+                                <span class="badge {% if item.do_kho == 'cao' %}bg-danger{% elif item.do_kho == 'vua' %}bg-warning text-dark{% else %}bg-success{% endif %} p-2 px-3">
+                                    {{ item.get_do_kho_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="text-primary fw-bold">
+                                    {% if item.thoi_gian %}
+                                        <i class="far fa-clock"></i> {{ item.thoi_gian|date:"H:i - d/m/Y" }}
+                                    {% else %}
+                                        <span class="text-muted fw-normal italic">⏳ Chờ gợi ý...</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <span class="text-secondary">
+                                    <i class="fas fa-location-dot text-danger small"></i> {{ item.phong_hoc|default:"Chưa rõ" }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <a href="{% url 'delete_lich' item.id %}" class="btn btn-sm btn-outline-danger px-3 rounded-pill hover-zoom" onclick="return confirm('Bạn muốn xóa môn này?')">
+                                    <i class="fas fa-trash-alt"></i> Xóa
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <i class="fas fa-calendar-day fa-4x text-light mb-3"></i><br>
+                                <span class="text-muted">Lịch học đang trống. Hãy thêm môn học đầu tiên!</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

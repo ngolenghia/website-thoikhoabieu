@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Lịch Học Của Tôi</title>
+    <style>
+        body { background: #f4f7f6; font-family: 'Inter', sans-serif; }
+        .main-card { border-radius: 15px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .badge-cao { background-color: #ff4757; } /* Đỏ cho môn khó */
+        .badge-vua { background-color: #ffa502; } /* Cam cho môn vừa */
+        .badge-thap { background-color: #2ed573; } /* Xanh cho môn dễ */
+        .time-box { background: #eef2f7; border-radius: 8px; padding: 5px 12px; font-weight: 600; color: #2f3542; }
+    </style>
+</head>
+<body class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h1 class="fw-bold text-primary"><i class="fa-solid fa-calendar-check me-2"></i>THỜI KHÓA BIỂU CÁ NHÂN</h1>
+            <p class="text-muted">Hệ thống gợi ý lịch học thông minh dựa trên độ khó</p>
+        </div>
+
+        <div class="card main-card p-4">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Môn học</th>
+                            <th>Mức độ</th>
+                            <th>Thời gian dự kiến</th>
+                            <th>Địa điểm</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in lich %}
+                        <tr>
+                            <td>
+                                <span class="fw-bold text-dark fs-5">{{ item.ten_mon }}</span>
+                            </td>
+                            <td>
+                                <span class="badge {{ item.do_kho|yesno:'badge-cao,badge-vua,badge-thap' }} px-3 py-2">
+                                    {{ item.get_do_kho_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="time-box d-inline-block">
+                                    <i class="far fa-clock me-1"></i> {{ item.thoi_gian|date:"H:i" }} 
+                                    <span class="mx-2">|</span> 
+                                    <i class="far fa-calendar-alt me-1"></i> {{ item.thoi_gian|date:"d/m/Y" }}
+                                </div>
+                            </td>
+                            <td>
+                                <span class="text-muted"><i class="fa-solid fa-location-dot me-1 text-danger"></i> {{ item.phong_hoc|default:"Chưa rõ" }}</span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center py-5 text-muted">Chưa có lịch học nào được sắp xếp.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="{% url 'manage' %}" class="btn btn-outline-primary btn-sm px-4 shadow-sm">
+                <i class="fa-solid fa-user-gear me-1"></i> Vào trang quản lý
+            </a>
+        </div>
+    </div>
+</body>
+</html>
