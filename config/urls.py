@@ -15,9 +15,18 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
 from schedule import views
-from django.contrib.auth import views as auth_views # Thêm dòng này để dùng View có sẵn của Django
+from django.contrib.auth import views as auth_views
+from django.contrib.auth.models import User
+from django.http import HttpResponse
+
+# Hàm tạo tài khoản admin nhanh (Vì Render Free bị khóa Shell)
+def create_admin(request):
+    if not User.objects.filter(username='admin').exists():
+        User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
+        return HttpResponse("Da tạo xong tài khoản! User: admin | Pass: admin123")
+    return HttpResponse("Tai khoản admin đã tồn tại rồi!")
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,24 +37,23 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('delete/<int:pk>/', views.delete_lich, name='delete_lich'),
     path('suggest/', views.auto_suggest, name='auto_suggest'),
+    
+    # Đường dẫn để kích hoạt tài khoản admin đầu tiên
+    path('setup-admin/', create_admin),
 
     # --- CÁC ĐƯỜNG DẪN QUÊN MẬT KHẨU ---
-    # 1. Trang nhập email để yêu cầu reset
     path('reset_password/', 
          auth_views.PasswordResetView.as_view(template_name="registration/password_reset_form.html"), 
          name="reset_password"),
     
-    # 2. Thông báo đã gửi email thành công
     path('reset_password_sent/', 
          auth_views.PasswordResetDoneView.as_view(template_name="registration/password_reset_done.html"), 
          name="password_reset_done"),
     
-    # 3. Link xác nhận trong email (uidb64 và token là mã bảo mật tự động)
     path('reset/<uidb64>/<token>/', 
          auth_views.PasswordResetConfirmView.as_view(template_name="registration/password_reset_confirm.html"), 
          name="password_reset_confirm"),
     
-    # 4. Thông báo đã đổi mật khẩu thành công
     path('reset_password_complete/', 
          auth_views.PasswordResetCompleteView.as_view(template_name="registration/password_reset_complete.html"), 
          name="password_reset_complete"),
