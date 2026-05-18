@@ -15,10 +15,10 @@
             overflow-x: hidden;
         }
 
-        /* KHÔI PHỤC MÀU SẮC */
-        .badge-cao { background-color: #ff4757 !important; color: white; } /* Đỏ */
-        .badge-vua { background-color: #ffa502 !important; color: white; } /* Cam */
-        .badge-thap { background-color: #2ed573 !important; color: white; } /* Xanh lá */
+        /* ĐỊNH NGHĨA MÀU SẮC (BẮT BUỘC) */
+        .bg-cao { background-color: #ff4757 !important; color: white !important; } 
+        .bg-vua { background-color: #ffa502 !important; color: white !important; } 
+        .bg-thap { background-color: #2ed573 !important; color: white !important; } 
 
         .main-card { 
             border-radius: 15px; 
@@ -35,34 +35,31 @@
             color: #2f3542;
             display: inline-flex;
             gap: 5px;
+            white-space: nowrap;
         }
 
-        /* FIX GIAO DIỆN MOBILE - NGĂN BỊ BÓP */
-        .container-fluid {
-            padding: 15px;
-        }
-
-        /* Cho phép bảng kéo ngang trên đt để chữ không bị dựng đứng */
+        /* FIX GIAO DIỆN MOBILE - KHÔNG BỊ BÓP */
         .table-responsive {
             border: none;
-            overflow-x: auto;
+            overflow-x: auto; /* Cho phép vuốt ngang trên điện thoại */
             -webkit-overflow-scrolling: touch;
         }
 
         table {
-            min-width: 600px; /* Ép bảng không được nhỏ hơn 600px để giữ hàng ngang */
+            min-width: 700px; /* Ép bảng rộng ít nhất 700px để chữ không bị dựng đứng */
         }
 
         th { 
             white-space: nowrap; 
             background-color: #f8f9fa !important;
+            padding: 15px !important;
         }
 
-        /* Responsive cho tiêu đề */
+        /* Responsive cho mobile */
         @media (max-width: 576px) {
             h1 { font-size: 1.4rem !important; }
-            .time-box { font-size: 0.85rem; flex-direction: column; align-items: center; }
-            .py-4 { padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
+            .container-fluid { padding: 10px !important; }
+            .time-box { font-size: 0.85rem; }
         }
     </style>
 </head>
@@ -93,14 +90,18 @@
                                 <span class="fw-bold text-dark">{{ item.ten_mon }}</span>
                             </td>
                             <td>
-                                <span class="badge {{ item.do_kho|yesno:'badge-cao,badge-vua,badge-thap' }} px-3 py-2">
-                                    {{ item.get_do_kho_display }}
-                                </span>
+                                {% if item.do_kho == 'CAO' %}
+                                    <span class="badge bg-cao px-3 py-2">Cao</span>
+                                {% elif item.do_kho == 'VUA' %}
+                                    <span class="badge bg-vua px-3 py-2">Vừa</span>
+                                {% else %}
+                                    <span class="badge bg-thap px-3 py-2">Thấp</span>
+                                {% endif %}
                             </td>
                             <td>
                                 <div class="time-box">
                                     <span><i class="far fa-clock me-1"></i>{{ item.thoi_gian|date:"H:i" }}</span>
-                                    <span class="d-none d-md-inline">|</span> 
+                                    <span>|</span> 
                                     <span><i class="far fa-calendar-alt me-1"></i>{{ item.thoi_gian|date:"d/m/Y" }}</span>
                                 </div>
                             </td>
