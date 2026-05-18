@@ -7,22 +7,43 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <title>Lịch Học Của Tôi</title>
     <style>
-        body { background: #f4f7f6; font-family: 'Inter', sans-serif; }
+        body { background: #f4f7f6; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         .main-card { border-radius: 15px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        .badge-cao { background-color: #ff4757; } /* Đỏ cho môn khó */
-        .badge-vua { background-color: #ffa502; } /* Cam cho môn vừa */
-        .badge-thap { background-color: #2ed573; } /* Xanh cho môn dễ */
-        .time-box { background: #eef2f7; border-radius: 8px; padding: 5px 12px; font-weight: 600; color: #2f3542; }
+        .badge-cao { background-color: #ff4757; }
+        .badge-vua { background-color: #ffa502; }
+        .badge-thap { background-color: #2ed573; }
+        
+        /* Box thời gian: cho phép tự xuống dòng trên đt để không bị tràn */
+        .time-box { 
+            background: #eef2f7; 
+            border-radius: 8px; 
+            padding: 8px 12px; 
+            font-weight: 600; 
+            color: #2f3542; 
+            display: inline-flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            justify-content: center;
+        }
+
+        /* FIX LỖI CHỮ BỊ DỰNG ĐỨNG: Ngăn chặn tiêu đề bảng bị ép dòng */
+        th { white-space: nowrap; }
+        
+        /* Chỉnh font chữ tiêu đề nhỏ lại một chút trên điện thoại */
+        @media (max-width: 576px) {
+            h1 { font-size: 1.5rem !important; }
+            .main-card { padding: 15px !important; }
+            td { min-width: 120px; } /* Đảm bảo các ô không bị quá hẹp */
+        }
     </style>
 </head>
-<body class="py-5">
-    <div class="container">
-        <div class="text-center mb-5">
-            <h1 class="fw-bold text-primary"><i class="fa-solid fa-calendar-check me-2"></i>THỜI KHÓA BIỂU CÁ NHÂN</h1>
-            <p class="text-muted">Hệ thống gợi ý lịch học thông minh dựa trên độ khó</p>
+<body class="py-4 py-md-5">
+    <div class="container-fluid container-md"> <div class="text-center mb-4 mb-md-5">
+            <h1 class="fw-bold text-primary"><i class="fa-solid fa-calendar-check me-2"></i>THỜI KHÓA BIỂU</h1>
+            <p class="text-muted px-3">Hệ thống gợi ý lịch học thông minh dựa trên độ khó</p>
         </div>
 
-        <div class="card main-card p-4">
+        <div class="card main-card p-3 p-md-4">
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
@@ -37,7 +58,7 @@
                         {% for item in lich %}
                         <tr>
                             <td>
-                                <span class="fw-bold text-dark fs-5">{{ item.ten_mon }}</span>
+                                <span class="fw-bold text-dark">{{ item.ten_mon }}</span>
                             </td>
                             <td>
                                 <span class="badge {{ item.do_kho|yesno:'badge-cao,badge-vua,badge-thap' }} px-3 py-2">
@@ -45,18 +66,21 @@
                                 </span>
                             </td>
                             <td>
-                                <div class="time-box d-inline-block">
-                                    <i class="far fa-clock me-1"></i> {{ item.thoi_gian|date:"H:i" }} 
-                                    <span class="mx-2">|</span> 
-                                    <i class="far fa-calendar-alt me-1"></i> {{ item.thoi_gian|date:"d/m/Y" }}
+                                <div class="time-box">
+                                    <span><i class="far fa-clock me-1"></i>{{ item.thoi_gian|date:"H:i" }}</span>
+                                    <span class="d-none d-md-inline">|</span> 
+                                    <span><i class="far fa-calendar-alt me-1"></i>{{ item.thoi_gian|date:"d/m/Y" }}</span>
                                 </div>
                             </td>
                             <td>
-                                <span class="text-muted"><i class="fa-solid fa-location-dot me-1 text-danger"></i> {{ item.phong_hoc|default:"Chưa rõ" }}</span>
+                                <span class="text-muted text-nowrap">
+                                    <i class="fa-solid fa-location-dot me-1 text-danger"></i> 
+                                    {{ item.phong_hoc|default:"Chưa rõ" }}
+                                </span>
                             </td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="4" class="text-center py-5 text-muted">Chưa có lịch học nào được sắp xếp.</td></tr>
+                        <tr><td colspan="4" class="text-center py-5 text-muted">Chưa có lịch học nào.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -64,8 +88,8 @@
         </div>
 
         <div class="text-center mt-4">
-            <a href="{% url 'manage' %}" class="btn btn-outline-primary btn-sm px-4 shadow-sm">
-                <i class="fa-solid fa-user-gear me-1"></i> Vào trang quản lý
+            <a href="{% url 'manage' %}" class="btn btn-primary px-4 shadow-sm">
+                <i class="fa-solid fa-user-gear me-1"></i> Quản lý
             </a>
         </div>
     </div>
