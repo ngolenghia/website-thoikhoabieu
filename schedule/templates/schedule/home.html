@@ -6,48 +6,73 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <title>Lịch Học Của Tôi</title>
-<style>
-    /* Ép toàn bộ trang web rộng 100%, không cho phép co lại quá mức */
-    body { 
-        width: 100% !important; 
-        margin: 0; 
-        padding: 0; 
-        overflow-x: hidden; 
-    }
+    <style>
+        /* Tổng thể */
+        body { 
+            background: #f4f7f6; 
+            font-family: 'Inter', sans-serif; 
+            margin: 0;
+            overflow-x: hidden;
+        }
 
-    /* Giúp container bung hết chiều ngang trên điện thoại */
-    .container, .container-fluid {
-        width: 100% !important;
-        max-width: 100% !important;
-        padding: 0 10px !important;
-    }
+        /* KHÔI PHỤC MÀU SẮC */
+        .badge-cao { background-color: #ff4757 !important; color: white; } /* Đỏ */
+        .badge-vua { background-color: #ffa502 !important; color: white; } /* Cam */
+        .badge-thap { background-color: #2ed573 !important; color: white; } /* Xanh lá */
 
-    /* Quan trọng: Fix lỗi chữ bị dựng đứng */
-    h1, h2, .fw-bold {
-        white-space: normal !important; 
-        word-wrap: break-word !important;
-        font-size: 1.5rem !important; /* Cho chữ nhỏ lại một chút trên ĐT */
-    }
+        .main-card { 
+            border-radius: 15px; 
+            border: none; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
+            background: white;
+        }
 
-    /* Bảng lịch học: Cho phép vuốt ngang thay vì bị bóp nát */
-    .table-responsive {
-        display: block;
-        width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    
-    td, th {
-        min-width: 120px; /* Đảm bảo mỗi cột có độ rộng tối thiểu */
-        white-space: nowrap;
-    }
-</style>
+        .time-box { 
+            background: #eef2f7; 
+            border-radius: 8px; 
+            padding: 8px 12px; 
+            font-weight: 600; 
+            color: #2f3542;
+            display: inline-flex;
+            gap: 5px;
+        }
 
+        /* FIX GIAO DIỆN MOBILE - NGĂN BỊ BÓP */
+        .container-fluid {
+            padding: 15px;
+        }
+
+        /* Cho phép bảng kéo ngang trên đt để chữ không bị dựng đứng */
+        .table-responsive {
+            border: none;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            min-width: 600px; /* Ép bảng không được nhỏ hơn 600px để giữ hàng ngang */
+        }
+
+        th { 
+            white-space: nowrap; 
+            background-color: #f8f9fa !important;
+        }
+
+        /* Responsive cho tiêu đề */
+        @media (max-width: 576px) {
+            h1 { font-size: 1.4rem !important; }
+            .time-box { font-size: 0.85rem; flex-direction: column; align-items: center; }
+            .py-4 { padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
+        }
+    </style>
 </head>
 <body class="py-4 py-md-5">
-    <div class="container-fluid container-md"> <div class="text-center mb-4 mb-md-5">
-            <h1 class="fw-bold text-primary"><i class="fa-solid fa-calendar-check me-2"></i>THỜI KHÓA BIỂU</h1>
-            <p class="text-muted px-3">Hệ thống gợi ý lịch học thông minh dựa trên độ khó</p>
+    <div class="container-fluid container-md">
+        <div class="text-center mb-4 mb-md-5">
+            <h1 class="fw-bold text-primary">
+                <i class="fa-solid fa-calendar-check me-2"></i>THỜI KHÓA BIỂU
+            </h1>
+            <p class="text-muted">Hệ thống gợi ý lịch học thông minh</p>
         </div>
 
         <div class="card main-card p-3 p-md-4">
@@ -80,7 +105,7 @@
                                 </div>
                             </td>
                             <td>
-                                <span class="text-muted text-nowrap">
+                                <span class="text-muted">
                                     <i class="fa-solid fa-location-dot me-1 text-danger"></i> 
                                     {{ item.phong_hoc|default:"Chưa rõ" }}
                                 </span>
@@ -96,7 +121,7 @@
 
         <div class="text-center mt-4">
             <a href="{% url 'manage' %}" class="btn btn-primary px-4 shadow-sm">
-                <i class="fa-solid fa-user-gear me-1"></i> Quản lý
+                <i class="fa-solid fa-user-gear me-1"></i> Vào trang quản lý
             </a>
         </div>
     </div>
