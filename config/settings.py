@@ -114,7 +114,8 @@ USE_TZ = True
 # Tìm đến cuối file settings.py và dán đoạn này vào
 # --- FILE GIAO DIỆN (STATIC) ---
 STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
