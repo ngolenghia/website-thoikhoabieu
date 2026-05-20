@@ -14,7 +14,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-fallback-key')
 
 # ĐỂ DEBUG = FALSE KHI CHẠY TRÊN AZURE
-DEBUG = False
+DEBUG = True
+
 
 ALLOWED_HOSTS = ['vku-timetable-lenghiagroup-f9gsdyaaaghmhzfy.southeastasia-01.azurewebsites.net', '127.0.0.1', 'localhost']
 
