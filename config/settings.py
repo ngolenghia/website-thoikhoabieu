@@ -30,9 +30,13 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-fallback-key')
 DEBUG = False
 
 ALLOWED_HOSTS = ['vku-timetable-lenghiagroup-f9gsdyaaaghmhzfy.southeastasia-01.azurewebsites.net', '127.0.0.1', 'localhost']
+
+# --- DÒNG QUAN TRỌNG ĐỂ SỬA LỖI 403 TRÊN AZURE ---
+CSRF_TRUSTED_ORIGINS = ['https://vku-timetable-lenghiagroup-f9gsdyaaaghmhzfy.southeastasia-01.azurewebsites.net']
+
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME) # Cho phép tất cả host (chỉ dùng khi DEBUG=True, không nên dùng trong production)
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME) 
 
 
 # Application definition
@@ -111,7 +115,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-# Tìm đến cuối file settings.py và dán đoạn này vào
 # --- FILE GIAO DIỆN (STATIC) ---
 STATIC_URL = 'static/'
 
