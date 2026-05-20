@@ -90,8 +90,7 @@ STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # SỬA DÒNG NÀY ĐỂ HIỆN GIAO DIỆN ADMIN CHUẨN ĐÉT
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
+STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # --- EMAIL ---
