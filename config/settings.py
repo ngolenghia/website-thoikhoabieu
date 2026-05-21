@@ -11,7 +11,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-fallback-key')
 
-# TỰ ĐỘNG BẬT/TẮT DEBUG: Nếu chạy ở máy cá nhân (Local) thì True, trên Azure thì False
+# --- CHỐT HẠ DEBUG ---
+# Trên Azure, nếu chưa có biến môi trường DEBUG=True thì mặc định sẽ là False để bảo mật
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 # CHO PHÉP TẤT CẢ ĐỂ TRÁNH LỖI HOST TRÊN AZURE
@@ -30,12 +31,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'whitenoise.runserver_nostatic', # Thêm dòng này để hỗ trợ development
     'schedule',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # Phải ở đây để phục vụ CSS
+    'whitenoise.middleware.WhiteNoiseMiddleware', # LUÔN PHẢI NẰM DƯỚI SecurityMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -63,10 +65,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# Database
+# --- CẤU HÌNH DATABASE ---
+# Ưu tiên dùng DATABASE_URL của Azure, nếu không có mới dùng SQLite
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL', f'sqlite:///{BASE_DIR / "db.sqlite3"}'),
+        default=f'sqlite:///{os.path.join(BASE_DIR, "db.sqlite3")}',
         conn_max_age=600
     )
 }
@@ -80,13 +83,14 @@ TIME_ZONE = 'Asia/Ho_Chi_Minh'
 USE_I18N = True
 USE_TZ = True
 
-# FILE GIAO DIỆN (STATIC)
+# --- CẤU HÌNH FILE TĨNH (STATIC) - CỰC KỲ QUAN TRỌNG ---
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# DÒNG NÀY GIÚP FIX LỖI 500 KHI THIẾU FILE CSS/IMAGE
+# Dùng WhiteNoise để phục vụ file tĩnh mà không cần Manifest (tránh lỗi 500)
 STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
 WHITENOISE_MANIFEST_STRICT = False 
+WHITENOISE_KEEP_ONLY_HASHED_FILES = False
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

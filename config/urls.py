@@ -15,18 +15,22 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path
 from schedule import views
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.models import User
 from django.http import HttpResponse
+from django.conf import settings
+from django.conf.urls.static import static
+from django.views.static import serve
+import re
 
-# Hàm tạo tài khoản admin nhanh (Vì Render Free bị khóa Shell)
+# Hàm tạo tài khoản admin nhanh
 def create_admin(request):
     if not User.objects.filter(username='admin').exists():
         User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
-        return HttpResponse("Da tạo xong tài khoản! User: admin | Pass: admin123")
-    return HttpResponse("Tai khoản admin đã tồn tại rồi!")
+        return HttpResponse("Đã tạo xong tài khoản! User: admin | Pass: admin123")
+    return HttpResponse("Tài khoản admin đã tồn tại rồi!")
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -38,7 +42,7 @@ urlpatterns = [
     path('delete/<int:pk>/', views.delete_lich, name='delete_lich'),
     path('suggest/', views.auto_suggest, name='auto_suggest'),
     
-    # Đường dẫn để kích hoạt tài khoản admin đầu tiên
+    # Đường dẫn để kích hoạt tài khoản admin
     path('setup-admin/', create_admin),
 
     # --- CÁC ĐƯỜNG DẪN QUÊN MẬT KHẨU ---
@@ -58,3 +62,11 @@ urlpatterns = [
          auth_views.PasswordResetCompleteView.as_view(template_name="registration/password_reset_complete.html"), 
          name="password_reset_complete"),
 ]
+
+# --- ĐOẠN CODE QUAN TRỌNG ĐỂ HIỆN GIAO DIỆN TRÊN AZURE ---
+if not settings.DEBUG:
+    urlpatterns += [
+        re_path(re.compile(r'^static/(?P<path>.*)$'), serve, {'document_root': settings.STATIC_ROOT}),
+    ]
+else:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
