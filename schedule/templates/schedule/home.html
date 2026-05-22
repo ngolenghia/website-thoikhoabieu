@@ -2,15 +2,14 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <title>Lịch Học Của Tôi</title>
     <style>
-        /* Tổng thể */
         body { 
             background: #f4f7f6; 
-            font-family: 'Inter', sans-serif; 
+            font-family: 'Inter', -apple-system, sans-serif; 
             margin: 0;
             overflow-x: hidden;
         }
@@ -34,43 +33,51 @@
             font-weight: 600; 
             color: #2f3542;
             display: inline-flex;
-            gap: 5px;
+            gap: 8px;
             white-space: nowrap;
         }
 
         .table-responsive {
             border: none;
             overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
         }
 
         table {
-            min-width: 700px;
+            min-width: 600px;
         }
 
         th { 
             white-space: nowrap; 
             background-color: #f8f9fa !important;
             padding: 15px !important;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #747d8c;
+        }
+
+        .badge {
+            font-weight: 500;
+            letter-spacing: 0.3px;
         }
 
         @media (max-width: 576px) {
             h1 { font-size: 1.4rem !important; }
             .container-fluid { padding: 10px !important; }
-            .time-box { font-size: 0.85rem; }
+            .time-box { font-size: 0.85rem; padding: 6px 10px; }
         }
     </style>
 </head>
 <body class="py-4 py-md-5">
     <div class="container-fluid container-md">
         <div class="text-center mb-4 mb-md-5">
-            <h1 class="fw-bold text-primary">
+            <h1 class="fw-bold text-primary mb-2">
                 <i class="fa-solid fa-calendar-check me-2"></i>THỜI KHÓA BIỂU
             </h1>
             <p class="text-muted">Hệ thống gợi ý lịch học thông minh</p>
         </div>
 
-        <div class="card main-card p-3 p-md-4">
+        <div class="card main-card p-2 p-md-4">
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
@@ -85,34 +92,43 @@
                         {% for item in lich %}
                         <tr>
                             <td>
-                                <span class="fw-bold text-dark">{{ item.ten_mon }}</span>
+                                <div class="d-flex align-items-center">
+                                    <div class="p-2 bg-primary bg-opacity-10 rounded me-3 d-none d-sm-block">
+                                        <i class="fa-solid fa-book-open text-primary"></i>
+                                    </div>
+                                    <span class="fw-bold text-dark">{{ item.ten_mon }}</span>
+                                </div>
                             </td>
                             <td>
-                                {# SỬA LỖI TẠI ĐÂY: Chuyển sang chữ thường để khớp với database #}
                                 {% if item.do_kho == 'cao' %}
-                                    <span class="badge bg-cao px-3 py-2">Khó (Sáng)</span>
+                                    <span class="badge bg-cao rounded-pill px-3 py-2">Khó (Sáng)</span>
                                 {% elif item.do_kho == 'vua' %}
-                                    <span class="badge bg-vua px-3 py-2">Trung bình (Chiều)</span>
+                                    <span class="badge bg-vua rounded-pill px-3 py-2">Trung bình (Chiều)</span>
                                 {% else %}
-                                    <span class="badge bg-thap px-3 py-2">Dễ/Phụ (Tối)</span>
+                                    <span class="badge bg-thap rounded-pill px-3 py-2">Dễ/Phụ (Tối)</span>
                                 {% endif %}
                             </td>
                             <td>
                                 <div class="time-box">
-                                    <span><i class="far fa-clock me-1"></i>{{ item.thoi_gian|date:"H:i" }}</span>
-                                    <span>|</span> 
-                                    <span><i class="far fa-calendar-alt me-1"></i>{{ item.thoi_gian|date:"d/m/Y" }}</span>
+                                    <span><i class="far fa-clock me-1 text-primary"></i>{{ item.thoi_gian|date:"H:i" }}</span>
+                                    <span class="text-muted opacity-50">|</span> 
+                                    <span><i class="far fa-calendar-alt me-1 text-primary"></i>{{ item.thoi_gian|date:"d/m/Y" }}</span>
                                 </div>
                             </td>
                             <td>
-                                <span class="text-muted">
+                                <span class="text-secondary">
                                     <i class="fa-solid fa-location-dot me-1 text-danger"></i> 
                                     {{ item.phong_hoc|default:"Chưa rõ" }}
                                 </span>
                             </td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="4" class="text-center py-5 text-muted">Chưa có lịch học nào.</td></tr>
+                        <tr>
+                            <td colspan="4" class="text-center py-5 text-muted">
+                                <i class="fa-solid fa-folder-open fa-3x mb-3 opacity-20"></i>
+                                <p>Chưa có lịch học nào. Hãy vào quản lý để thêm!</p>
+                            </td>
+                        </tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -120,8 +136,8 @@
         </div>
 
         <div class="text-center mt-4">
-            <a href="{% url 'manage' %}" class="btn btn-primary px-4 shadow-sm">
-                <i class="fa-solid fa-user-gear me-1"></i> Vào trang quản lý
+            <a href="{% url 'manage' %}" class="btn btn-primary px-5 py-2 shadow rounded-pill hover-zoom">
+                <i class="fa-solid fa-user-gear me-2"></i>Vào trang quản lý
             </a>
         </div>
     </div>
