@@ -15,7 +15,7 @@
             overflow-x: hidden;
         }
 
-        /* ĐỊNH NGHĨA MÀU SẮC (BẮT BUỘC) */
+        /* ĐỊNH NGHĨA MÀU SẮC CHUẨN */
         .bg-cao { background-color: #ff4757 !important; color: white !important; } 
         .bg-vua { background-color: #ffa502 !important; color: white !important; } 
         .bg-thap { background-color: #2ed573 !important; color: white !important; } 
@@ -38,15 +38,14 @@
             white-space: nowrap;
         }
 
-        /* FIX GIAO DIỆN MOBILE - KHÔNG BỊ BÓP */
         .table-responsive {
             border: none;
-            overflow-x: auto; /* Cho phép vuốt ngang trên điện thoại */
+            overflow-x: auto;
             -webkit-overflow-scrolling: touch;
         }
 
         table {
-            min-width: 700px; /* Ép bảng rộng ít nhất 700px để chữ không bị dựng đứng */
+            min-width: 700px;
         }
 
         th { 
@@ -55,7 +54,6 @@
             padding: 15px !important;
         }
 
-        /* Responsive cho mobile */
         @media (max-width: 576px) {
             h1 { font-size: 1.4rem !important; }
             .container-fluid { padding: 10px !important; }
@@ -90,12 +88,13 @@
                                 <span class="fw-bold text-dark">{{ item.ten_mon }}</span>
                             </td>
                             <td>
-                                {% if item.do_kho == 'CAO' %}
-                                    <span class="badge bg-cao px-3 py-2">Cao</span>
-                                {% elif item.do_kho == 'VUA' %}
-                                    <span class="badge bg-vua px-3 py-2">Vừa</span>
+                                {# SỬA LỖI TẠI ĐÂY: Chuyển sang chữ thường để khớp với database #}
+                                {% if item.do_kho == 'cao' %}
+                                    <span class="badge bg-cao px-3 py-2">Khó (Sáng)</span>
+                                {% elif item.do_kho == 'vua' %}
+                                    <span class="badge bg-vua px-3 py-2">Trung bình (Chiều)</span>
                                 {% else %}
-                                    <span class="badge bg-thap px-3 py-2">Thấp</span>
+                                    <span class="badge bg-thap px-3 py-2">Dễ/Phụ (Tối)</span>
                                 {% endif %}
                             </td>
                             <td>

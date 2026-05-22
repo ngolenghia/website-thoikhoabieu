@@ -28,22 +28,29 @@
 
         /* Hover Zoom cho nút bấm */
         .hover-zoom:hover { transform: scale(1.05); transition: 0.2s; }
+
+        /* Mobile Responsive */
+        @media (max-width: 992px) {
+            .sidebar { width: 80px; padding: 15px 5px; }
+            .sidebar h3, .sidebar .nav-link span { display: none; }
+            .main-content { margin-left: 90px; padding: 20px; }
+        }
     </style>
 </head>
 <body>
     <div class="sidebar shadow-lg">
-        <h3 class="text-info fw-bold mb-5 px-2"><i class="fas fa-graduation-cap"></i> STUDY HUB</h3>
+        <h3 class="text-info fw-bold mb-5 px-2"><i class="fas fa-graduation-cap"></i> <span>STUDY HUB</span></h3>
         <nav class="nav flex-column">
-            <a class="nav-link" href="{% url 'home' %}"><i class="fas fa-home"></i> Xem trang chủ</a>
-            <a class="nav-link active" href="{% url 'manage' %}"><i class="fas fa-calendar-alt"></i> Quản lý lịch học</a>
+            <a class="nav-link" href="{% url 'home' %}"><i class="fas fa-home"></i> <span>Xem trang chủ</span></a>
+            <a class="nav-link active" href="{% url 'manage' %}"><i class="fas fa-calendar-alt"></i> <span>Quản lý lịch học</span></a>
             
             {% if user.is_staff %}
-            <a class="nav-link text-warning" href="/admin/" target="_blank"><i class="fas fa-user-shield"></i> Hệ thống Admin</a>
+            <a class="nav-link text-warning" href="/admin/" target="_blank"><i class="fas fa-user-shield"></i> <span>Hệ thống Admin</span></a>
             {% endif %}
             
             <div style="margin-top: 100px;">
                 <hr class="text-secondary opacity-25">
-                <a class="nav-link text-danger" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+                <a class="nav-link text-danger" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> <span>Đăng xuất</span></a>
             </div>
         </nav>
     </div>
@@ -85,7 +92,7 @@
                     {{ form.phong_hoc }}
                 </div>
                 <div class="col-md-1">
-                    <button type="submit" class="btn btn-primary w-100 shadow-sm fw-bold" style="height: 46px; border-radius: 10px;">
+                    <button type="submit" class="btn btn-primary w-100 shadow-sm fw-bold" style="height: 40px; border-radius: 10px;">
                         <i class="fas fa-plus"></i>
                     </button>
                 </div>
@@ -113,7 +120,11 @@
                                 <small class="text-muted">Mã môn: #{{ item.id }}</small>
                             </td>
                             <td>
-                                <span class="badge {% if item.do_kho == 'cao' %}bg-danger{% elif item.do_kho == 'vua' %}bg-warning text-dark{% else %}bg-success{% endif %} p-2 px-3">
+                                {# SỬA LỖI MÀU SẮC TẠI ĐÂY #}
+                                <span class="badge 
+                                    {% if item.do_kho == 'cao' %}bg-danger
+                                    {% elif item.do_kho == 'vua' %}bg-warning text-dark
+                                    {% else %}bg-success{% endif %} p-2 px-3">
                                     {{ item.get_do_kho_display }}
                                 </span>
                             </td>
@@ -122,7 +133,7 @@
                                     {% if item.thoi_gian %}
                                         <i class="far fa-clock"></i> {{ item.thoi_gian|date:"H:i - d/m/Y" }}
                                     {% else %}
-                                        <span class="text-muted fw-normal italic">⏳ Chờ gợi ý...</span>
+                                        <span class="text-muted fw-normal"><em>⏳ Chờ nhấn "Gợi ý"...</em></span>
                                     {% endif %}
                                 </div>
                             </td>
@@ -150,5 +161,12 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.querySelectorAll('input, select').forEach(el => {
+            el.classList.add('form-control');
+            if(el.tagName === 'SELECT') el.classList.add('form-select');
+        });
+    </script>
 </body>
 </html>

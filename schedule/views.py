@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from datetime import datetime, time, timedelta # Thêm timedelta để tính toán giờ nối tiếp
+from datetime import datetime, time, timedelta
 from .models import ThoiGianBieu
 from .forms import ThoiGianBieuForm
 
@@ -15,7 +15,6 @@ def home(request):
         ).order_by('thoi_gian')
     else:
         danh_sach_lich = []
-        
     return render(request, 'schedule/home.html', {'lich': danh_sach_lich})
 
 # 2. ĐĂNG NHẬP
@@ -55,7 +54,7 @@ def logout_view(request):
     return redirect('login') 
 
 # 5. Dashboard quản lý cá nhân
-@login_required(login_url='login')
+@login_required(login_required_url='login')
 def manage(request):
     if request.method == 'POST':
         form = ThoiGianBieuForm(request.POST)
@@ -77,30 +76,29 @@ def delete_lich(request, pk):
     item.delete()
     return redirect('manage')
 
-# 7. Gợi ý lịch THÔNG MINH (Đã nâng cấp chống trùng lịch)
+# 7. Gợi ý lịch THÔNG MINH (Sửa logic để khớp với hiển thị)
 @login_required(login_url='login')
 def auto_suggest(request):
-    # Lấy các môn chưa có thời gian, ưu tiên xếp môn Khó trước
+    # Lấy các môn chưa có thời gian
     mon_chua_xep = ThoiGianBieu.objects.filter(
         sinh_vien=request.user, 
         thoi_gian__isnull=True
-    ).order_by('do_kho') # Sắp xếp 'cao' lên trước theo bảng chữ cái hoặc logic của bạn
+    ).order_by('do_kho') # Sắp xếp theo mức độ ưu tiên
     
     for item in mon_chua_xep:
         ngay = item.ngay_hoc if item.ngay_hoc else datetime.now().date()
         
-        # Xác định mốc giờ bắt đầu lý tưởng
+        # MỐC GIỜ CHUẨN THEO ĐỘ KHÓ
         if item.do_kho == 'cao':
-            gio_chuan = time(8, 0)
+            gio_chuan = time(8, 0)   # Khó -> Học sáng (8h)
         elif item.do_kho == 'vua':
-            gio_chuan = time(14, 0)
+            gio_chuan = time(14, 0)  # Trung bình -> Học chiều (14h)
         else:
-            gio_chuan = time(19, 0)
+            gio_chuan = time(19, 0)  # Dễ -> Học tối (19h)
             
         thoi_gian_du_kien = datetime.combine(ngay, gio_chuan)
         
-        # KIỂM TRA TRÙNG LỊCH:
-        # Tìm xem trong ngày đó, từ mốc giờ chuẩn trở đi đã có môn nào chưa
+        # KIỂM TRA TRÙNG LỊCH TRONG NGÀY
         mon_da_co = ThoiGianBieu.objects.filter(
             sinh_vien=request.user,
             thoi_gian__date=ngay,
@@ -108,10 +106,10 @@ def auto_suggest(request):
         ).order_by('thoi_gian').last()
         
         if mon_da_co and mon_da_co.thoi_gian:
-            # Nếu đã có môn, giờ mới = Thời gian môn cũ + số tiếng học môn cũ
+            # Nếu đã có môn ở khung giờ này, xếp nối tiếp sau môn đó
             thoi_gian_du_kien = mon_da_co.thoi_gian + timedelta(hours=mon_da_co.thoi_luong)
             
         item.thoi_gian = thoi_gian_du_kien
         item.save()
         
-    return redirect('manage')
+    return redirect('home') # Sau khi xếp xong đẩy ra trang chủ xem kết quả
