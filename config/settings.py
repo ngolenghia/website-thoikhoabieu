@@ -3,22 +3,22 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
+# Nạp biến môi trường từ file .env (chỉ dùng khi chạy local)
 load_dotenv()
 
-# Build paths
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-fallback-key')
+# --- BẢO MẬT ---
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-71r=u61dn4!(7+@wdka=x2dllmfww=r_s!&r22f2*cf*)*^cbl')
 
-# --- CHỐT HẠ DEBUG ---
-# Trên Azure, nếu chưa có biến môi trường DEBUG=True thì mặc định sẽ là False để bảo mật
+# DEBUG: Trên Azure sẽ lấy từ Environment Variables (mặc định False)
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-# CHO PHÉP TẤT CẢ ĐỂ TRÁNH LỖI HOST TRÊN AZURE
+# Cho phép tất cả host để Azure không chặn request
 ALLOWED_HOSTS = ['*']
 
-# SỬA LỖI 403 TRÊN AZURE
+# Sửa lỗi 403 CSRF khi chạy trên domain của Azure
 CSRF_TRUSTED_ORIGINS = [
     'https://vku-timetable-lenghiagroup-f9gsdyaaaghmhzfy.southeastasia-01.azurewebsites.net'
 ]
@@ -30,14 +30,14 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'whitenoise.runserver_nostatic',  # Hỗ trợ file tĩnh
     'django.contrib.staticfiles',
-    'whitenoise.runserver_nostatic', # Thêm dòng này để hỗ trợ development
     'schedule',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # LUÔN PHẢI NẰM DƯỚI SecurityMiddleware
+    'whitenoise.middleware.WhiteNoiseMiddleware', # Phải nằm ngay sau SecurityMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -51,7 +51,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -65,16 +65,21 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# --- CẤU HÌNH DATABASE ---
-# Ưu tiên dùng DATABASE_URL của Azure, nếu không có mới dùng SQLite
+# --- CẤU HÌNH DATABASE (FIX LỖI NO SUCH TABLE) ---
+# Nếu chạy trên Azure Linux, SQLite phải nằm trong /home để dữ liệu được lưu vĩnh viễn
+if os.environ.get('WEBSITE_HOSTNAME'):
+    db_path = os.path.join('/home', 'db.sqlite3')
+else:
+    db_path = os.path.join(BASE_DIR, 'db.sqlite3')
+
 DATABASES = {
     'default': dj_database_url.config(
-        default=f'sqlite:///{os.path.join(BASE_DIR, "db.sqlite3")}',
+        default=f'sqlite:///{db_path}',
         conn_max_age=600
     )
 }
 
-# Password validation
+# Password validation - Tắt kiểm tra phức tạp để bạn dễ tạo admin khi test
 AUTH_PASSWORD_VALIDATORS = []
 
 # Internationalization
@@ -83,18 +88,17 @@ TIME_ZONE = 'Asia/Ho_Chi_Minh'
 USE_I18N = True
 USE_TZ = True
 
-# --- CẤU HÌNH FILE TĨNH (STATIC) - CỰC KỲ QUAN TRỌNG ---
+# --- FILE TĨNH (CSS, JS, Images) ---
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Dùng WhiteNoise để phục vụ file tĩnh mà không cần Manifest (tránh lỗi 500)
-STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
+# WhiteNoise phục vụ file tĩnh trên Azure
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 WHITENOISE_MANIFEST_STRICT = False 
-WHITENOISE_KEEP_ONLY_HASHED_FILES = False
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# EMAIL
+# EMAIL (Lấy từ biến môi trường Azure Configuration)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
@@ -105,5 +109,5 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_PASS')
 # ĐIỀU HƯỚNG
 LOGIN_URL = 'login'
 LOGOUT_URL = 'login'
-LOGIN_REDIRECT_URL = 'home'
+LOGIN_REDIRECT_URL = 'manage'
 LOGOUT_REDIRECT_URL = 'login'
