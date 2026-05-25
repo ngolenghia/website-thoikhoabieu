@@ -12,16 +12,23 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # --- BẢO MẬT ---
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-71r=u61dn4!(7+@wdka=x2dllmfww=r_s!&r22f2*cf*)*^cbl')
 
-# DEBUG: Trên Azure sẽ lấy từ Environment Variables (mặc định False)
+# DEBUG: Trên Azure mặc định sẽ là False để bảo mật
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 # Cho phép tất cả host để Azure không chặn request
 ALLOWED_HOSTS = ['*']
 
-# Sửa lỗi 403 CSRF khi chạy trên domain của Azure
+# --- QUAN TRỌNG: FIX LỖI 403 FORBIDDEN ---
 CSRF_TRUSTED_ORIGINS = [
-    'https://vku-timetable-lenghiagroup-f9gsdyaaaghmhzfy.southeastasia-01.azurewebsites.net'
+    'https://vku-timetable-lenghiagroup-f9gsdyaaaghmhzfy.southeastasia-01.azurewebsites.net',
+    'http://vku-timetable-lenghiagroup-f9gsdyaaaghmhzfy.southeastasia-01.azurewebsites.net'
 ]
+
+# Ép bảo mật Cookie trên môi trường HTTPS của Azure
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = True
+CSRF_USE_SESSIONS = False  # Đảm bảo dùng Cookie để lưu Token
 
 # Application definition
 INSTALLED_APPS = [
@@ -65,21 +72,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# --- CẤU HÌNH DATABASE (FIX LỖI NO SUCH TABLE) ---
-# Nếu chạy trên Azure Linux, SQLite phải nằm trong /home để dữ liệu được lưu vĩnh viễn
-if os.environ.get('WEBSITE_HOSTNAME'):
-    db_path = os.path.join('/home', 'db.sqlite3')
-else:
-    db_path = os.path.join(BASE_DIR, 'db.sqlite3')
-
+# --- CẤU HÌNH DATABASE ---
+# Sử dụng SQLite nằm ngay trong thư mục project để đảm bảo quyền truy cập
 DATABASES = {
     'default': dj_database_url.config(
-        default=f'sqlite:///{db_path}',
+        default=f'sqlite:///{os.path.join(BASE_DIR, "db.sqlite3")}',
         conn_max_age=600
     )
 }
 
-# Password validation - Tắt kiểm tra phức tạp để bạn dễ tạo admin khi test
+# Password validation - Tắt để dễ tạo admin
 AUTH_PASSWORD_VALIDATORS = []
 
 # Internationalization
@@ -92,13 +94,13 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# WhiteNoise phục vụ file tĩnh trên Azure
+# WhiteNoise phục vụ file tĩnh
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 WHITENOISE_MANIFEST_STRICT = False 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# EMAIL (Lấy từ biến môi trường Azure Configuration)
+# EMAIL
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
