@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, re_path
+from django.urls import path, re_path, include
 from schedule import views
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.models import User
@@ -23,7 +23,6 @@ from django.http import HttpResponse
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.static import serve
-import re
 
 # Hàm tạo tài khoản admin nhanh
 def create_admin(request):
@@ -63,10 +62,11 @@ urlpatterns = [
          name="password_reset_complete"),
 ]
 
-# --- ĐOẠN CODE QUAN TRỌNG ĐỂ HIỆN GIAO DIỆN TRÊN AZURE ---
+# --- ĐOẠN CODE FIX LỖI GIAO DIỆN VÀ LỖI STARTWITH TRÊN AZURE ---
 if not settings.DEBUG:
     urlpatterns += [
-        re_path(re.compile(r'^static/(?P<path>.*)$'), serve, {'document_root': settings.STATIC_ROOT}),
+        # Thay re.compile bằng chuỗi raw r'^...' để không bị lỗi AttributeError
+        re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
     ]
 else:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
