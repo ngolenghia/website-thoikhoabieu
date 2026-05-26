@@ -113,3 +113,10 @@ LOGIN_URL = 'login'
 LOGOUT_URL = 'login'
 LOGIN_REDIRECT_URL = 'manage'
 LOGOUT_REDIRECT_URL = 'login'
+
+# Mở file schedule/views.py
+def manage(request):
+  
+# Chèn dòng này vào ngay sau dòng "def tên_hàm(request):"
+loi_chup_anh_bao_cao = "Ket qua la: " + 2026  # TypeError: cộng chuỗi với số
+   
